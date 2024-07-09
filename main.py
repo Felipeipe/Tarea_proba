@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy.random
+
 
 # parte 4 Lectura de datos
 string_train_data = open('train.txt', 'r')
@@ -58,11 +58,28 @@ print(val_data.describe())
 print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
 print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
 print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
-print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")
+# print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")cls
 
+
+
+def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
+    """entrega la probabilidad de masa conjunta al recibir
+    las observaciones de 2 variables aleatorias
+
+    Args:
+        X (np.array): observación de variable aleatoria de largo n
+        Y (np.array): segunda observación de variable aleatoria del mismo largo que X
+
+    Returns:
+        np.ndarray: probabilidad de masa conjunta
+    """
+    return np.histogram2d(X,Y,bins,density=True)
+
+X, Y = PMCF(train_data[0],train_data[1],(1000,1000))
+
+print(f'largo x? {len(X)} \nlargo y? {len(Y)}')
 
 # gráficos analisis preliminar
-
 plt.rcParams['figure.figsize'] = [10, 6]
 
 # # Histogramas de datos de entrenamiento
@@ -99,29 +116,29 @@ plt.rcParams['figure.figsize'] = [10, 6]
 # plt.legend(loc='best')
 # plt.show()
 
-# # plt.scatter(train_data[0], train_data[0], s=0.01, color='blue', label='Datos de entrenamiento')
-# # #plt.scatter(LMMSE(train_data), train_data[0], s=0.001, color='red', label='Estimador lineal')
-# # plt.title(r'Distribución conjunta $f_{}$')
-# # plt.legend(loc='best')
-# # plt.grid(True)
-# # plt.show()
+# plt.scatter(train_data[0], train_data[0], s=0.01, color='blue', label='Datos de entrenamiento')
+# #plt.scatter(LMMSE(train_data), train_data[0], s=0.001, color='red', label='Estimador lineal')
+# plt.title(r'Distribución conjunta $f_{}$')
+# plt.legend(loc='best')
+# plt.grid(True)
+# plt.show()
 
-# # plt.title(r'Distribución conjunta $f_{X,Y}(x,y)$')         
-# # plt.scatter(train_data[0],train_data[1],label="Distribución conjunta", s=0.1)
-# # plt.xlabel("porcentaje de carga")
-# # plt.ylabel("energía consumida [Wh]")
-# # plt.grid(True)
-# # plt.legend(loc='best')
-# # plt.show()
+# plt.title(r'Distribución conjunta $f_{X,Y}(x,y)$')         
+# plt.scatter(train_data[0],train_data[1],label="Distribución conjunta", s=0.1)
+# plt.xlabel("porcentaje de carga")
+# plt.ylabel("energía consumida [Wh]")
+# plt.grid(True)
+# plt.legend(loc='best')
+# plt.show()
 
-# # Grafico de estimador lineal
-# # plt.title(r'Distribución conjunta $f_{\hat{X},X}$')         
-# # plt.scatter(LMMSE(train_data),train_data[0],label='distribución conjunta',s=0.1)
-# # plt.xlabel('porcentaje de carga')
-# # plt.ylabel('porcentaje de carga')
-# # plt.grid(True)
-# # plt.legend(loc='best')
-# # plt.show()
+# Grafico de estimador lineal
+# plt.title(r'Distribución conjunta $f_{\hat{X},X}$')         
+# plt.scatter(LMMSE(train_data),train_data[0],label='distribución conjunta',s=0.1)
+# plt.xlabel('porcentaje de carga')
+# plt.ylabel('porcentaje de carga')
+# plt.grid(True)
+# plt.legend(loc='best')
+# plt.show()
 
 # # Histogramas de datos de entrenamiento con LMMSE
 # plt.title('Histograma de porcentaje de carga de datos de entrenamiento con LMMSE')
@@ -136,7 +153,7 @@ plt.rcParams['figure.figsize'] = [10, 6]
 
 
 
-XY = np.stack((train_data[0],train_data[1]),axis=-1)
+# XY = np.stack((train_data[0],train_data[1]),axis=-1)
 
 # def selection(XY, limitXY=[[0,+1],[0,+100000]]):
 #         XY_select = []
@@ -182,7 +199,7 @@ XY = np.stack((train_data[0],train_data[1]),axis=-1)
 # plt.savefig("Frecuencia conjunta de las variables X y Y")
 # plt.show()
 
-print(XY)
+# print(XY)
 
-Z=np.linspace(0, 1, 100)
-W=np.linspace(0,100000, 500)
+# Z=np.linspace(0, 1, 100)
+# W=np.linspace(0,100000, 500)
