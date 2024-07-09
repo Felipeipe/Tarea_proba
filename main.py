@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # parte 4 Lectura de datos
-string_train_data = open('train.txt','r')
+string_train_data = open('train.txt', 'r')
 D = {}
 
 for i, line in enumerate(string_train_data):
@@ -27,9 +27,46 @@ for i, line in enumerate(string_val_data):
     
     E[i] = [float_values[0],sum(float_values,1)]
 
-df2 = pd.DataFrame(D,index=[0,1])
+df2 = pd.DataFrame(E,index=[0,1])
 
-val_data = df.transpose()
+val_data = df2.transpose()
+
+# Funcion de covarianza
+def covariance(X:np.array,Y:np.array) -> float:
+    """ Entrega la covarianza de 2 variables aleatorias discretas
+    Args:
+        X (np.array): arreglo de valores posibles 1
+        Y (np.array): arreglo de valores posibles 2
+    Returns:
+        float: entrega la covarianza
+    """
+    n = len(X)
+    return -(np.mean(X) * np.mean(Y)) + (np.dot(X,Y) / n) 
+
+# Calculamos los coeficientes del estimador lineal óptimo
+
+def coef_A(dft):
+    cov = covariance(dft[0],dft[1])
+    var = dft[1].var()
+    return cov / var
+
+def coef_b(dft):
+    A = coef_A(dft)
+    return dft[0].mean() - (A * dft[1].mean())
+
+# Creamos el estimador lineal óptimo
+
+def LMMSE(dft):
+    return coef_A(dft)*dft[1] + coef_b(dft)
+
+# Mostramos todos los Medidas de tendencia central
+
+print(train_data.describe())
+print(val_data.describe())
+print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
+print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
+print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
+print(f"Estimador lineal x(Y) del entrenamiento \n{LMMSE(train_data)}")
 
 # Histogramas de datos de entrenamiento
 plt.title('Histograma de porcentaje de carga de datos de entrenamiento')
