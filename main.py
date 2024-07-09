@@ -1,30 +1,29 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+plt.rcParams['figure.figsize'] = [10, 6]
 
 # parte 4 Lectura de datos
-string_train_data = open('train.txt', 'r')
-D = {}
+def lectura_de_datos(path:str)->pd.DataFrame:
+    """Lee un archivo de formato .txt y lo convierte a un DataFrame
 
-for i, line in enumerate(string_train_data):
-    str_values = line.split(',')
-    float_values = [float(x) for x in str_values]
+    Args:
+        path (str): nombre del archivo
+
+    Returns:
+        pd.DataFrame: dataframe de 2 columnas
+    """
     
-    D[i] = [float_values[0],sum(float_values,1)]
-df = pd.DataFrame(D,index=[0,1])
-train_data = df.transpose()
+    string_data = open(path, 'r')
+    D = {}
 
-string_val_data = open('val.txt','r')
-E = {}
-
-for i, line in enumerate(string_val_data):
-    str_values = line.split(',')
-    float_values = [float(x) for x in str_values]
-    
-    E[i] = [float_values[0],sum(float_values,1)]
-df2 = pd.DataFrame(E,index=[0,1])
-val_data = df2.transpose()
+    for i, line in enumerate(string_data):
+        str_values = line.split(',')
+        float_values = [float(x) for x in str_values]
+        
+        D[i] = [float_values[0],sum(float_values,1)]
+    df = pd.DataFrame(D,index=[0,1])
+    return df.transpose()
 
 # Funcion de covarianza
 def covariance(X:np.array,Y:np.array) -> float:
@@ -52,16 +51,6 @@ def coef_b(dft):
 def LMMSE(dft):
     return coef_A(dft)*dft[1] + coef_b(dft)
 
-# Mostramos todos los Medidas de tendencia central
-print(train_data.describe())
-print(val_data.describe())
-print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
-print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
-print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
-# print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")cls
-
-
-
 def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
     """entrega la probabilidad de masa conjunta al recibir
     las observaciones de 2 variables aleatorias
@@ -73,70 +62,81 @@ def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
     Returns:
         np.ndarray: probabilidad de masa conjunta
     """
-    return np.histogram2d(X,Y,bins,density=True)
+    return np.histogram2d(X,Y,bins,density=True)[0]
 
-X, Y = PMCF(train_data[0],train_data[1],(1000,1000))
+def recta(a:float,X: np.array) -> float:
+    return np.ones(len(X)) * a
 
-print(f'largo x? {len(X)} \nlargo y? {len(Y)}')
+train_data = lectura_de_datos('train.txt')
+val_data = lectura_de_datos('val.txt')
+
+# Mostramos todos los Medidas de tendencia central
+print(train_data.describe())
+print(val_data.describe())
+print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
+print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
+print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
+# print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")
+
+masa_conjunta = PMCF(train_data[0],train_data[1],(1000,1000))
+plt.matshow(masa_conjunta)
+plt.colorbar(spacing='uniform')
+plt.show()
 
 # gráficos analisis preliminar
-plt.rcParams['figure.figsize'] = [10, 6]
+
 
 # # Histogramas de datos de entrenamiento
 # plt.title('Histograma de porcentaje de carga de datos de entrenamiento')
-# plt.hist(train_data[0],bins=100,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
-# plt.grid(True)
+# plt.hist(train_data[0],bins=100,alpha=0.5,label='Porcentaje de carga',color='tomato',edgecolor = "tomato")
 # plt.xlabel('Porcentaje de carga')
 # plt.ylabel('Frecuencia por intervalo')
 # plt.legend(loc='best')
 # plt.show()
 
 # plt.title('Histograma de Energía consumida en datos de entrenamiento')         
-# plt.hist(train_data[1],bins=500,alpha=0.5,label='Energía consumida [Wh]',edgecolor = "b")
+# plt.hist(train_data[1],bins=500,alpha=0.5,label='Energía consumida [Wh]',color='g',edgecolor = "g")
 # plt.xlabel('Energía consumida [Wh]')
 # plt.ylabel('Frecuencia por intervalo')
-# plt.grid(True)
 # plt.legend(loc='best')
 # plt.show()
 
 # # Histogramas de datos de validacion
 # plt.title('Histograma de porcentaje de carga de datos de validación')
-# plt.hist(val_data[0],bins=50,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.hist(val_data[0],bins=50,alpha=0.5,label='Porcentaje de carga',color='tomato',edgecolor = "tomato")
 # plt.xlabel('Porcentaje de carga')
 # plt.ylabel('Frecuencia por intervalo')
-# plt.grid(True)
 # plt.legend(loc='best')
 # plt.show()
 
 # plt.title('Histograma de Energía consumida en datos de validación')         
-# plt.hist(val_data[1],bins=100,alpha=0.5,label='Energía consumida',edgecolor = "b")   
+# plt.hist(val_data[1],bins=100,alpha=0.5,label='Energía consumida',color='g',edgecolor = "g")   
 # plt.xlabel('Energía consumida [Wh]')
 # plt.ylabel('Frecuencia por intervalo')  
-# plt.grid(True)
 # plt.legend(loc='best')
 # plt.show()
 
-# plt.scatter(train_data[0], train_data[0], s=0.01, color='blue', label='Datos de entrenamiento')
-# #plt.scatter(LMMSE(train_data), train_data[0], s=0.001, color='red', label='Estimador lineal')
+# # plt.scatter(train_data[0], train_data[0], s=0.01, color='blue', label='Datos de entrenamiento')
+# plt.scatter(train_data[0],LMMSE(train_data), s=0.1, color='tomato', label='Estimador lineal')
 # plt.title(r'Distribución conjunta $f_{}$')
 # plt.legend(loc='best')
-# plt.grid(True)
 # plt.show()
 
 # plt.title(r'Distribución conjunta $f_{X,Y}(x,y)$')         
-# plt.scatter(train_data[0],train_data[1],label="Distribución conjunta", s=0.1)
+# plt.scatter(train_data[0],train_data[1],color='mediumpurple',label="Distribución conjunta", s=0.1)
 # plt.xlabel("porcentaje de carga")
 # plt.ylabel("energía consumida [Wh]")
-# plt.grid(True)
 # plt.legend(loc='best')
 # plt.show()
 
-# Grafico de estimador lineal
+# X=np.linspace(0,1,1000)
+
+
+# # Grafico de estimador lineal
 # plt.title(r'Distribución conjunta $f_{\hat{X},X}$')         
-# plt.scatter(LMMSE(train_data),train_data[0],label='distribución conjunta',s=0.1)
-# plt.xlabel('porcentaje de carga')
-# plt.ylabel('porcentaje de carga')
-# plt.grid(True)
+# plt.scatter(train_data[0],LMMSE(train_data),color='orchid',label='distribución conjunta',s=0.1)
+# plt.xlabel('Porcentaje de carga (real)')
+# plt.ylabel('Porcentaje de carga (LMMSE)')
 # plt.legend(loc='best')
 # plt.show()
 
@@ -144,7 +144,6 @@ plt.rcParams['figure.figsize'] = [10, 6]
 # plt.title('Histograma de porcentaje de carga de datos de entrenamiento con LMMSE')
 # plt.hist(LMMSE(train_data),bins=100,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
 # plt.xlabel('Porcentaje de carga')
-# plt.grid(True)
 # plt.ylabel('Frecuencia por intervalo')
 # plt.legend(loc='best')
 # plt.show()
@@ -203,3 +202,4 @@ plt.rcParams['figure.figsize'] = [10, 6]
 
 # Z=np.linspace(0, 1, 100)
 # W=np.linspace(0,100000, 500)
+
