@@ -41,7 +41,7 @@ def covariance(X:np.array,Y:np.array) -> float:
 def coef_A(dft):
     cov = covariance(dft[0],dft[1])
     var = dft[1].var()
-    return cov / var
+    return cov * var
 
 def coef_b(dft):
     A = coef_A(dft)
