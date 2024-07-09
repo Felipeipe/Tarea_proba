@@ -58,50 +58,78 @@ print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_d
 print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
 print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
 print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")
-#print(LMMSE(train_data)-train_data[0])
+
+
+# gráficos analisis preliminar
+
+plt.rcParams['figure.figsize'] = [10, 6]
 
 # Histogramas de datos de entrenamiento
 plt.title('Histograma de porcentaje de carga de datos de entrenamiento')
 plt.hist(train_data[0],bins=100,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+plt.grid(True)
+plt.xlabel('Porcentaje de carga')
+plt.ylabel('Frecuencia por intervalo')
 plt.legend(loc='best')
 plt.show()
 
 plt.title('Histograma de Energía consumida en datos de entrenamiento')         
-plt.hist(train_data[1],bins=500,alpha=0.5,label='Energía consumida',edgecolor = "b")     
+plt.hist(train_data[1],bins=500,alpha=0.5,label='Energía consumida [Wh]',edgecolor = "b")
+plt.xlabel('Energía consumida [Wh]')
+plt.ylabel('Frecuencia por intervalo')
+plt.grid(True)
 plt.legend(loc='best')
 plt.show()
 
-plt.scatter(train_data[0], train_data[0], s=0.001, color='blue', label='Datos de entrenamiento')
-#plt.scatter(LMMSE(train_data), train_data[0], s=0.001, color='red', label='Estimador lineal')
-plt.title('Histograma de porcentaje de carga de datos de entrenamiento con estimador lineal')
+# Histogramas de datos de validacion
+plt.title('Histograma de porcentaje de carga de datos de validación')
+plt.hist(val_data[0],bins=50,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+plt.xlabel('Porcentaje de carga')
+plt.ylabel('Frecuencia por intervalo')
+plt.grid(True)
 plt.legend(loc='best')
 plt.show()
 
-plt.title('Histograma de porcentaje de carga de datos de entrenamiento')         
-plt.scatter(train_data[0],train_data[1], s=0.001)     
+plt.title('Histograma de Energía consumida en datos de validación')         
+plt.hist(val_data[1],bins=100,alpha=0.5,label='Energía consumida',edgecolor = "b")   
+plt.xlabel('Energía consumida [Wh]')
+plt.ylabel('Frecuencia por intervalo')  
+plt.grid(True)
 plt.legend(loc='best')
 plt.show()
 
-plt.title('Histograma de porcentaje de carga de datos de entrenamiento con estimador lineal')         
-plt.scatter(LMMSE(train_data),train_data[0],s=0.001)     
+# plt.scatter(train_data[0], train_data[0], s=0.01, color='blue', label='Datos de entrenamiento')
+# #plt.scatter(LMMSE(train_data), train_data[0], s=0.001, color='red', label='Estimador lineal')
+# plt.title(r'Distribución conjunta $f_{}$')
+# plt.legend(loc='best')
+# plt.grid(True)
+# plt.show()
+
+plt.title(r'Distribución conjunta $f_{X,Y}(x,y)$')         
+plt.scatter(train_data[0],train_data[1],label="Distribución conjunta", s=0.1)
+plt.xlabel("porcentaje de carga")
+plt.ylabel("energía consumida [Wh]")
+plt.grid(True)
+plt.legend(loc='best')
+plt.show()
+
+# Grafico de estimador lineal
+plt.title(r'Distribución conjunta $f_{\hat{X},X}$')         
+plt.scatter(LMMSE(train_data),train_data[0],label='distribución conjunta',s=0.1)
+plt.xlabel('porcentaje de carga')
+plt.ylabel('porcentaje de carga')
+plt.grid(True)
 plt.legend(loc='best')
 plt.show()
 
 # Histogramas de datos de entrenamiento con LMMSE
 plt.title('Histograma de porcentaje de carga de datos de entrenamiento con LMMSE')
 plt.hist(LMMSE(train_data),bins=100,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+plt.xlabel('Porcentaje de carga')
+plt.grid(True)
+plt.ylabel('Frecuencia por intervalo')
 plt.legend(loc='best')
 plt.show()
 
-# Histogramas de datos de validacion
-#plt.title('Histograma de porcentaje de carga de datos de validación')
-#plt.hist(val_data[0],bins=100,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
-#plt.legend(loc='best')
-#plt.show()
-#
-#plt.title('Histograma de Energía consumida en datos de validación')         
-#plt.hist(val_data[1],bins=500,alpha=0.5,label='Energía consumida',edgecolor = "b")     
-#plt.legend(loc='best')
-#plt.show()
 
 
