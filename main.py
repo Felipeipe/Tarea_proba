@@ -62,13 +62,35 @@ def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
     Returns:
         np.ndarray: probabilidad de masa conjunta
     """
-    return np.histogram2d(X,Y,bins,density=True)[0]
+    return np.histogram2d(X,Y,bins,density=True)
+
+
+def nonlinearEst(X, Y, n):
+    h,x,y=PMCF(X, Y, n)
+    x=x[:-1]
+    y=y[:-1]
+    print(len(x))
+    print(len(y))
+    numerador=np.dot(h,x)
+    denominador=np.dot(h, np.ones(n[0]))
+    return numerador/denominador
 
 def recta(a:float,X: np.array) -> float:
     return np.ones(len(X)) * a
 
+def err(X, Y):
+    return abs(X - Y)
+
+def RMSE(X, Y):
+    return np.sqrt((np.sum((X-Y)**2))/len(X))
+
+def MAE(X, Y):
+    return np.sum((X-Y))/len(X)
+
+
 train_data = lectura_de_datos('train.txt')
 val_data = lectura_de_datos('val.txt')
+
 
 # Mostramos todos los Medidas de tendencia central
 print(train_data.describe())
@@ -77,11 +99,6 @@ print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_d
 print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
 print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
 # print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")
-
-masa_conjunta = PMCF(train_data[0],train_data[1],(1000,1000))
-plt.matshow(masa_conjunta)
-plt.colorbar(spacing='uniform')
-plt.show()
 
 # gráficos analisis preliminar
 
@@ -132,7 +149,7 @@ plt.show()
 # X=np.linspace(0,1,1000)
 
 
-# # Grafico de estimador lineal
+# Grafico de estimador lineal
 # plt.title(r'Distribución conjunta $f_{\hat{X},X}$')         
 # plt.scatter(train_data[0],LMMSE(train_data),color='orchid',label='distribución conjunta',s=0.1)
 # plt.xlabel('Porcentaje de carga (real)')
@@ -150,56 +167,52 @@ plt.show()
 
 
 
-
-
-# XY = np.stack((train_data[0],train_data[1]),axis=-1)
-
-# def selection(XY, limitXY=[[0,+1],[0,+100000]]):
-#         XY_select = []
-#         for elt in XY:
-#             if elt[0] > limitXY[0][0] and elt[0] < limitXY[0][1] and elt[1] > limitXY[1][0] and elt[1] < limitXY[1][1]:
-#                 XY_select.append(elt)
-
-#         return np.array(XY_select)
-
-# XY_select = selection(XY, limitXY=[[0,+1],[0,+100000]])
-
-
-# xAmplitudes = np.array(XY_select)[:,0]#your data here
-# yAmplitudes = np.array(XY_select)[:,1]#your other data here
-
-
-# fig = plt.figure() #create a canvas, tell matplotlib it's 3d
-# ax = fig.add_subplot(111, projection='3d')
-
-
-# hist, xedges, yedges = np.histogram2d(train_data[0], train_data[1], bins=(100,100), range = [[0,+1],[0,+100000]]) # you can change your bins, and the range on which to take data
-# # hist is a 7X7 matrix, with the populations for each of the subspace parts.
-# xpos, ypos = np.meshgrid(xedges[:-1]+xedges[1:], yedges[:-1]+yedges[1:]) -(xedges[1]-xedges[0])
-
-
-# xpos = xpos.flatten()*1./2
-# ypos = ypos.flatten()*1./2
-# zpos = np.zeros_like (xpos)
-
-# dx = xedges [1] - xedges [0]
-# dy = yedges [1] - yedges [0]
-# dz = hist.flatten()
-
-# max_height = 80   # get range of colorbars so we can normalize
-# min_height = 0
-# # scale each z to [0,1], and get their rgb values
-
-
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='blue', zsort='average')
-# plt.title("Probabilidad de grasa :v conjunta de las variables X y Y")
-# plt.xlabel("X - Porcentaje de carga restante")
-# plt.ylabel("Y - Energía consumida en el viaje (Wh)")
-# plt.savefig("Frecuencia conjunta de las variables X y Y")
+# plt.title('Error entre datos de validación y estimador lineal')
+# plt.scatter(val_data[0], err(LMMSE(val_data),val_data[0]),label='Porcentaje de carga',color = "b", s=0.1)
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Frecuencia por intervalo')
+# plt.legend(loc='best')
 # plt.show()
 
-# print(XY)
+# plt.title('Error entre datos de validación y estimador ideal')
+# plt.hist(err(val_data[0], nonlinearEst(val_data[0], val_data[1], (10000, 10000))),bins=1000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Frecuencia por intervalo')
+# plt.legend(loc='best')
+# plt.show()
 
-# Z=np.linspace(0, 1, 100)
-# W=np.linspace(0,100000, 500)
+# plt.title('RMSE entre datos de validación y estimador lineal')
+# plt.hist(RMSE(val_data[0], LMMSE(val_data)),bins=1000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Magnitud del RMSE')
+# plt.legend(loc='best')
+# plt.show()
 
+# plt.title('MAE entre datos de validación y estimador lineal')
+# plt.hist(MAE(val_data[0], LMMSE(val_data)),bins=1000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Magnitud del MAE')
+# plt.legend(loc='best')
+# plt.show()
+
+# plt.title('RMSE entre datos de validación y estimador ideal')
+# plt.hist(RMSE(val_data[0], nonlinearEst(val_data[0], val_data[1], (10000, 10000))),bins=1000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Magnitud del RMSE')
+# plt.legend(loc='best')
+# plt.show()
+
+# plt.title('MAE entre datos de validación y estimador ideal')
+# plt.hist(MAE(val_data[0], nonlinearEst(val_data[0], val_data[1], (10000, 10000))),bins=1000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+# plt.xlabel('Porcentaje de carga')
+# plt.ylabel('Magnitud del MAE')
+# plt.legend(loc='best')
+# plt.show()
+
+
+plt.title('MAE entre datos de validación y estimador ideal')
+plt.hist(nonlinearEst(val_data[0], val_data[1], (1000, 1000)),bins=10000,alpha=0.5,label='Porcentaje de carga',edgecolor = "b")
+plt.xlabel('Porcentaje de carga')
+plt.ylabel('Magnitud del MAE')
+plt.legend(loc='best')
+plt.show()
