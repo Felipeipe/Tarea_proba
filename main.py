@@ -47,15 +47,13 @@ def coef_b(dft):
     A = coef_A(dft)
     return dft[0].mean() - (A * dft[1].mean())
 
-# Creamos el estimador lineal óptimo
-#def LMMSE(dft):
-#    return coef_A(dft)*dft[1] + coef_b(dft)
-
+# Calculamos la estimacion con el estimador lineal
 def LMMSE(dftrain, dfval):
     return coef_A(dftrain)*dfval[1] + coef_b(dftrain)
 
+# Calculamos la probabilidad de masa conjunta
 def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
-    """entrega la probabilidad de masa conjunta al recibir
+    """Entrega la probabilidad de masa conjunta al recibir
     las observaciones de 2 variables aleatorias
 
     Args:
@@ -67,18 +65,16 @@ def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
     """
     return np.histogram2d(X,Y,bins,density=True)
 
-def nonlinearEst(X, Y, n):
-    h,x,y=PMCF(X, Y, n)
+def nonlinearEst(X, Y, Z, W, bin):
+    h,x,y=PMCF(X, Y, bin)
+    k,z,w=PMCF(Z, W, bin)
     x=x[:-1]
     y=y[:-1]
-    print(len(x))
-    print(len(y))
-    numerador=np.dot(h,x)
-    denominador=np.dot(h, np.ones(n[0]))
+    z=z[:-1]
+    w=w[:-1]
+    numerador=np.dot(h,z)
+    denominador=np.dot(h, np.ones(bin[0]))
     return numerador/denominador
-
-def recta(a:float,X: np.array) -> float:
-    return np.ones(len(X)) * a
 
 def err(X, Y):
     return abs(X - Y)
@@ -88,7 +84,6 @@ def RMSE(X, Y):
 
 def MAE(X, Y):
     return abs(np.sum((X-Y)))/len(X)
-
 
 train_data = lectura_de_datos('train.txt')
 val_data = lectura_de_datos('val.txt')
