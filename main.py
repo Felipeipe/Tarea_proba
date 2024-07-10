@@ -85,16 +85,22 @@ def RMSE(X, Y):
 def MAE(X, Y):
     return abs(np.sum((X-Y)))/len(X)
 
+
 train_data = lectura_de_datos('train.txt')
 val_data = lectura_de_datos('val.txt')
 
 if __name__=='__main__':
+    print(f'Error cuadrático medio de estimador lineal: {RMSE(LMMSE(train_data, val_data),val_data[0])}')
+    print(f'Error cuadrático medio de estimador no lineal: {RMSE(nonlinearEst(train_data[0],train_data[1],val_data[0],val_data[1],(10000,10000)),val_data[0])}')
+    print(f'Error absoluto medio de estimador lineal: {MAE(LMMSE(train_data, val_data),val_data[0])}')
+    print(f'Error absoluto medio de estimador no lineal: {MAE(nonlinearEst(train_data[0],train_data[1],val_data[0],val_data[1],(10000,10000)),val_data[0])}')
+
     # Mostramos todos los Medidas de tendencia central
-    print(train_data.describe())
-    print(val_data.describe())
-    print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
-    print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
-    print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
+    # print(train_data.describe())
+    # print(val_data.describe())
+    # print(f"Covarianza de X e Y del entrenamiento: {covariance(train_data[0],train_data[1])}")
+    # print(f"Coeficiente A del entrenamiento: {coef_A(train_data)}")
+    # print(f"Coeficiente b del entrenamiento: {coef_b(train_data)}")
     # print(f"Estimador lineal x(Y) del entrenamiento: \n{LMMSE(train_data)}")
 
     #Validación del estimador lineal LMMSE (Se entrena con train y se estima el porcentaje de carga con la base validacion)
