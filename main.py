@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = [10, 6]
 
-# parte 4 Lectura de datos
+# Funcion para la lectura de los datos
 def lectura_de_datos(path:str)->pd.DataFrame:
     """Lee un archivo de formato .txt y lo convierte a un DataFrame
 
@@ -42,12 +42,11 @@ def coef_A(dft):
     cov = covariance(dft[0],dft[1])
     var = dft[1].var()
     return cov / var
-
 def coef_b(dft):
     A = coef_A(dft)
     return dft[0].mean() - (A * dft[1].mean())
 
-# Calculamos la estimacion con el estimador lineal
+# Formula para la estimacion con el estimador lineal óptimo
 def LMMSE(dftrain, dfval):
     return coef_A(dftrain)*dfval[1] + coef_b(dftrain)
 
@@ -65,6 +64,7 @@ def PMCF(X:np.array, Y: np.array, bins: tuple[int]) -> np.ndarray:
     """
     return np.histogram2d(X,Y,bins,density=True)
 
+# Creamos la funcion para el estimador no lineal
 def nonlinearEst(X, Y, Z, W, bin):
     h,x,y=PMCF(X, Y, bin)
     k,z,w=PMCF(Z, W, bin)
@@ -76,15 +76,59 @@ def nonlinearEst(X, Y, Z, W, bin):
     denominador=np.dot(h, np.ones(bin[0]))
     return numerador/denominador
 
-def err(X, Y):
-    return abs(X - Y)
-
+# Formula para el Root Mean Square Error
 def RMSE(X, Y):
     return np.sqrt((np.sum((X-Y)**2))/len(X))
 
+# Formula para el Mean Absolute Error
 def MAE(X, Y):
     return abs(np.sum((X-Y)))/len(X)
 
-
+# Leemos las archivos .txt y los guardamos como data frame
 train_data = lectura_de_datos('train.txt')
 val_data = lectura_de_datos('val.txt')
+
+
+###########
+###########
+
+X_train = train_data.iloc[:, 0].values  # Estado de carga final
+Y_train_sum = train_data.iloc[:, 1].values  # Energía total consumida en cada ruta
+
+# Definir los límites de los histogramas
+x_min, x_max = X_train.min(), X_train.max()
+y_min, y_max = Y_train_sum.min(), Y_train_sum.max()
+
+# Crear un grid para los histogramas
+num_bins = 50
+x_bins = np.linspace(x_min, x_max, num_bins)
+y_bins = np.linspace(y_min, y_max, num_bins)
+
+# Calcular el histograma conjunto
+H, xedges, yedges = np.histogram2d(X_train, Y_train_sum, bins=(x_bins, y_bins), density=True)
+
+# Calcular el histograma marginal de Y
+HY, yedges = np.histogram(Y_train_sum, bins=y_bins, density=True)
+
+# Obtener los centros de los bins
+x_bin_centers = (xedges[:-1] + xedges[1:]) / 2
+y_bin_centers = (yedges[:-1] + yedges[1:]) / 2
+
+# Calcular el estimador no lineal E[X | Y=y]
+x_hat = np.zeros_like(y_bin_centers)
+for i, y in enumerate(y_bin_centers):
+    joint_hist = H[:, i]
+    marginal_y = HY[i]
+    if marginal_y > 0:
+        x_hat[i] = np.sum(joint_hist * x_bin_centers) / marginal_y
+    else:
+        x_hat[i] = 0
+
+# Graficar el estimador no lineal
+plt.figure(figsize=(10, 6))
+plt.plot(y_bin_centers, x_hat/100, label='Estimador no lineal $E[X | Y=y]$', color='blue')
+plt.xlabel('Y (Energía total consumida)')
+plt.ylabel('X (Estado de carga final)')
+plt.title('Estimador no lineal $E[X | Y=y]$')
+plt.legend()
+plt.show()
